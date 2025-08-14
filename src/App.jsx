@@ -8,6 +8,9 @@ import Feed from "./Feed";
 import Connections from "./Connections";
 import Requests from "./Requests";
 import ProfilePage from "./ProfilePage";
+import ForgetPassword from "./ForgetPassword";
+import ResetPassword from "./ResetPassword";
+
 function App() {
   return (
     <>
@@ -21,8 +24,10 @@ function App() {
           <Route path="connections" element={<Connections />}/>
           <Route path="requests" element={<Requests />}/>
           <Route path="profile/:id" element={<ProfilePage />}/>
-
+          <Route path="/forget-password" element={<ForgetPassword />}/>
+          
         </Route>
+        <Route path="/reset-password/:token" element={<ResetPassword />}/>
       </Routes>
      </BrowserRouter>
     </Provider>

@@ -1,45 +1,78 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "./utils/constants";
 
 const ProfilePage = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/user/${id}`, {
-          withCredentials: true,
-        });
+        const res = await axios.get(`${BASE_URL}/user/${id}`,{withCredentials:true});
         setUser(res.data);
       } catch (err) {
-        console.log(err);
+        const status = err.response?.status;
+        if (status === 401) {
+          setError("You must be logged in to view this profile.");
+        } else if (status === 404) {
+          setError("User not found.");
+        } else {
+          setError("Unable to load profile. Please try again later.");
+        }
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchUser();
   }, [id]);
 
-  if (!user) return <p className="text-center mt-10">Loading profile...</p>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center mt-10">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center mt-10 text-center">
+        <p className="text-red-500 text-lg font-medium">{error}</p>
+        {error.includes("logged in") && (
+          <button
+            onClick={() => navigate("/login")}
+            className="btn btn-primary mt-4"
+          >
+            Go to Login
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center p-6">
       <div className="card bg-base-100 shadow-xl w-96">
-        <figure>
+        <figure className="pt-6">
           <img
             src={user.photoUrl || "https://via.placeholder.com/150"}
             alt="profile"
-            className="w-40 h-40 object-cover rounded-full mt-4"
+            className="w-32 h-32 object-cover rounded-full border-4 border-base-200 shadow-md"
           />
         </figure>
         <div className="card-body text-center">
-          <h2 className="card-title text-xl">
+          <h2 className="card-title text-xl font-semibold">
             {user.firstName} {user.lastName}
           </h2>
-          <p>{user.age} | {user.gender}</p>
-          <p className="mt-2">{user.about}</p>
+          <p className="text-sm text-gray-500">
+            {user.age} | {user.gender}
+          </p>
+          <p className="mt-3 text-gray-700">{user.about}</p>
         </div>
       </div>
     </div>
@@ -47,4 +80,5 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+
 
