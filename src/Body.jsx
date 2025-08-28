@@ -8,39 +8,39 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addUser } from './utils/userSlice';
 
 const Body = () => {
-  
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const userData = useSelector((store)=>store.user);
-  const fetchUser = async () =>{
-    try{
-        const res = await axios.get(BASE_URL+"/profile/view",{
-        withCredentials:true,
+  const userData = useSelector((store) => store.user);
+
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(BASE_URL + "/profile/view", {
+        withCredentials: true,
       });
       dispatch(addUser(res.data));
-    }catch(err){
-      if(err.status === 401){
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
         navigate("/login");
+      } else {
+        console.error("Unexpected error:", err);
       }
-      
-      console.error(err);
     }
-   
   };
-useEffect(()=>{
-  if(!userData){
-    fetchUser();
-  }
-  
-},[]);
+
+  useEffect(() => {
+    if (!userData) {
+      fetchUser();
+    }
+  }, []);
+
   return (
     <div>
-        <NavBar />
-        <Outlet />
-        <Footer />
+      <NavBar />
+      <Outlet />
+      <Footer />
     </div>
- 
-  )
-}
+  );
+};
 
-export default Body
+export default Body;
+
