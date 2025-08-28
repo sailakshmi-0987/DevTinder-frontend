@@ -6,6 +6,7 @@ import { BASE_URL } from './utils/constants';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { addUser } from './utils/userSlice';
+
 const Body = () => {
   
   const dispatch = useDispatch();
