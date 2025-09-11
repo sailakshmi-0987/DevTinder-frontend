@@ -1,27 +1,34 @@
-import React from 'react';
+import React from "react";
 import axios from "axios";
-import { useSelector, useDispatch } from 'react-redux';
-import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom"; // ⬅️ added useLocation
 import { BASE_URL } from "./utils/constants";
-import { removeUser } from './utils/userSlice';
+import { removeUser } from "./utils/userSlice";
 
 const NavBar = () => {
-  const user = useSelector(store => store.user);
+  const user = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation(); // ⬅️ get current route
 
   const handleLogout = async () => {
+    
     try {
-      await axios.post(BASE_URL + "/logout", {}, { withCredentials: true });
+      await axios.post(`${BASE_URL}/logout`, {}, { withCredentials: true });
       dispatch(removeUser());
       navigate("/login");
     } catch (err) {
-      console.log(err);
+      console.error("Logout failed:", err);
     }
   };
 
+  // hide user info if on login/signup page
+  const hideUserInfo =
+    location.pathname === "/login" || location.pathname === "/signup";
+
   return (
-    <div className="navbar bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-lg">
+    <div className="navbar bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-lg px-4">
+      {/* Left Section - Logo */}
       <div className="flex-1">
         <Link
           to="/"
@@ -31,24 +38,30 @@ const NavBar = () => {
         </Link>
       </div>
 
-      {user && (
+      {/* Right Section - User Info */}
+      {user && !hideUserInfo && (   // ⬅️ added condition here
         <div className="flex items-center gap-4">
-          <span className="text-white font-medium">
-            Welcome, <span className="font-bold">{user.firstName}</span>
+          <span className="hidden sm:inline text-white font-medium">
+            Hi, <span className="font-bold">{user.firstName}</span>
           </span>
 
+          {/* Dropdown */}
           <div className="dropdown dropdown-end">
             <div
               tabIndex={0}
               role="button"
               className="btn btn-ghost btn-circle avatar hover:ring-2 hover:ring-white transition-all duration-300"
             >
-              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
-                <img
-                  alt="User avatar"
-                  src={user.photoUrl}
-                  className="object-cover w-full h-full"
-                />
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white flex items-center justify-center bg-gray-200 text-gray-700 font-bold">
+                {user.photoUrl ? (
+                  <img
+                    alt="User avatar"
+                    src={user.photoUrl}
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  user.firstName?.[0] || "U"
+                )}
               </div>
             </div>
             <ul
@@ -56,36 +69,48 @@ const NavBar = () => {
               className="menu menu-sm dropdown-content bg-white text-gray-700 rounded-lg z-[1] mt-3 w-52 p-2 shadow-lg border border-gray-200"
             >
               <li>
-                <Link
+                <NavLink
                   to="/profile"
-                  className="hover:bg-gray-100 rounded-lg transition-colors"
+                  className={({ isActive }) =>
+                    `rounded-lg transition-colors ${
+                      isActive ? "bg-gray-100 font-semibold" : "hover:bg-gray-100"
+                    }`
+                  }
                 >
                   Profile
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link
+                <NavLink
                   to="/connections"
-                  className="hover:bg-gray-100 rounded-lg transition-colors"
+                  className={({ isActive }) =>
+                    `rounded-lg transition-colors ${
+                      isActive ? "bg-gray-100 font-semibold" : "hover:bg-gray-100"
+                    }`
+                  }
                 >
                   Connections
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link
+                <NavLink
                   to="/requests"
-                  className="hover:bg-gray-100 rounded-lg transition-colors"
+                  className={({ isActive }) =>
+                    `rounded-lg transition-colors ${
+                      isActive ? "bg-gray-100 font-semibold" : "hover:bg-gray-100"
+                    }`
+                  }
                 >
                   Requests
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link
+                <button
                   onClick={handleLogout}
                   className="text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                 >
                   Logout
-                </Link>
+                </button>
               </li>
             </ul>
           </div>

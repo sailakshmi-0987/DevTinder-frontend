@@ -11,7 +11,10 @@ import ProfilePage from "./ProfilePage";
 import ForgetPassword from "./ForgetPassword";
 import ResetPassword from "./ResetPassword";
 
+import { BASE_URL } from "./utils/constants";
+
 function App() {
+    
   return (
     <>
     <Provider store={appStore}>
